@@ -21,6 +21,7 @@ Contact: Guillaume.Huard@imag.fr
      38401 Saint Martin d'Hères
 */
 #include <stdlib.h>
+#include <stdio.h>
 #include "memory.h"
 #include "util.h"
 
@@ -51,7 +52,8 @@ int memory_read_byte(memory mem, uint32_t address, uint8_t *value) {
 
 
 
-    if(address+8>mem->size)
+    if(*address+8>mem->size)
+      printf("Erreur d'adressage pour les byte \n" );
       return -1;
     *value = get_bit(*(mem->data + address*8) , *(mem->data + address + 8)  );
     return 0;
@@ -67,9 +69,13 @@ int memory_read_half(memory mem, uint32_t address, uint16_t *value) {
       return -1;
     *value=*value|*temp;
     return 0;*/
-  if(address+16>mem->size)
+  if(*address+16>mem->size)
+    printf("Erreur d'adressage pour les half word \n" );
       return -1;
-    *value = get_bits(*(mem->data + address*8) , 15,0 );
+    if(mem->is_big_endian == is_big_endian())
+       *value = get_bits(*(mem->data + address) , 15,0 );
+     else
+      *value = get_bits(*(mem->data + address) , 31,16 );
     return 0;
 }
 
