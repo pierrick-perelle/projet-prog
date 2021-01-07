@@ -43,12 +43,19 @@ uint8_t get_mode(registers r) {
     return 0;
 } 
 
+//Voir page 41 et 43 du manuel.
+
 int current_mode_has_spsr(registers r) {
-    return 0;
+    if(r->mode != 0b10000 || r->mode 0b11111){ 
+        return 0;
+    }
+    return -1;
 }
 
+//Voir page 41 du manuel.
+
 int in_a_privileged_mode(registers r) {
-    if(r->mode != 0b10000){ //
+    if(r->mode != 0b10000){
         return 0;
     }
     return -1;
