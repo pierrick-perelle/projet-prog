@@ -46,7 +46,7 @@ uint8_t get_mode(registers r) {
 //Voir page 41 et 43 du manuel.
 
 int current_mode_has_spsr(registers r) {
-    if(r->mode != 0b10000 || r->mode 0b11111){ 
+    if(r->mode != 0b10000 && r->mode != 0b11111){ 
         return 0;
     }
     return -1;
