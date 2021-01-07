@@ -71,15 +71,6 @@ int main() {
     char *endianess[] = { "little", "big" };
     memory m[1];
     
-    m[0]=memory_create(4,1);
-    memory_write_byte(m[0],2,0xFB);
-    uint8_t r;
-    memory_read_byte(m[0],2,&r);
-    int r2=r;
-    printf("allo ! \n");
-    printf("%d \n",r2);
-    return 0;
-    
     uint32_t word_value = 0x11223344, word_read;
     uint16_t half_value = 0x5566, half_read;
     uint8_t *position;
