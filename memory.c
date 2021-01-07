@@ -59,12 +59,21 @@ int memory_read_byte(memory mem, uint32_t address, uint8_t *value) {
 
 int memory_read_half(memory mem, uint32_t address, uint16_t *value) {
     uint8_t temp;
-    if(memory_read_byte(mem,address,&temp)==-1)
-      return -1;
-    *value=temp<<8;
-    if(memory_read_byte(mem,address+8,&temp)==-1)
-      return -1;
-    *value=*value|temp;
+    if(mem->is_big_endian){
+      if(memory_read_byte(mem,address,&temp)==-1)
+        return -1;
+      *value=temp<<8;
+      if(memory_read_byte(mem,address+1,&temp)==-1)
+        return -1;
+      *value=*value|temp;
+    }else{
+      if(memory_read_byte(mem,address+1,&temp)==-1)
+        return -1;
+      *value=temp<<8;
+      if(memory_read_byte(mem,address,&temp)==-1)
+        return -1;
+      *value=*value|temp;
+    }
     return 0;
   
     /*if(mem->is_big_endian == is_big_endian())
@@ -78,39 +87,70 @@ int memory_read_half(memory mem, uint32_t address, uint16_t *value) {
 
 int memory_read_word(memory mem, uint32_t address, uint32_t *value) {
     uint8_t temp;
-    if(memory_read_byte(mem,address,&temp)==-1)
-      return -1;
-    *value=temp<<24;
-    if(memory_read_byte(mem,address+8,&temp)==-1)
-      return -1;
-    *value=*value|(temp<<16);
-    if(memory_read_byte(mem,address+16,&temp)==-1)
-      return -1;
-    *value=*value|(temp<<8);
-    if(memory_read_byte(mem,address+24,&temp)==-1)
-      return -1;
-    *value=*value|temp;
+    if(mem->is_big_endian){
+      if(memory_read_byte(mem,address,&temp)==-1)
+        return -1;
+      *value=temp<<24;
+      if(memory_read_byte(mem,address+1,&temp)==-1)
+        return -1;
+      *value=*value|(temp<<16);
+      if(memory_read_byte(mem,address+2,&temp)==-1)
+        return -1;
+      *value=*value|(temp<<8);
+      if(memory_read_byte(mem,address+3,&temp)==-1)
+        return -1;
+      *value=*value|temp;
+    }else{
+      if(memory_read_byte(mem,address+3,&temp)==-1)
+        return -1;
+      *value=temp<<24;
+      if(memory_read_byte(mem,address+2,&temp)==-1)
+        return -1;
+      *value=*value|(temp<<16);
+      if(memory_read_byte(mem,address+1,&temp)==-1)
+        return -1;
+      *value=*value|(temp<<8);
+      if(memory_read_byte(mem,address,&temp)==-1)
+        return -1;
+      *value=*value|temp;
+    }
     return 0;
 }
 
 int memory_write_byte(memory mem, uint32_t address, uint8_t value) {
+    if(address<0 || address>=mem->size)
+      return -1;
     *(mem->data + address) = value;
     return 0;
     return -1;
 }
 
 int memory_write_half(memory mem, uint32_t address, uint16_t value) {
-    if(memory_write_byte(mem,address,value>>8)==-1)
-      return -1;
-    if(memory_write_byte(mem,address+8,value&0x00FF)==-1)
-      return -1;
+    if(mem->is_big_endian){
+      if(memory_write_byte(mem,address,value>>8)==-1)
+        return -1;
+      if(memory_write_byte(mem,address+1,value&0x00FF)==-1)
+        return -1;
+    }else{
+      if(memory_write_byte(mem,address+1,value>>8)==-1)
+        return -1;
+      if(memory_write_byte(mem,address,value&0x00FF)==-1)
+        return -1;
+    }
     return 0;
 }
 
 int memory_write_word(memory mem, uint32_t address, uint32_t value) {
-    if(memory_write_half(mem,address,value>>16)==-1)
-      return -1;
-    if(memory_write_half(mem,address+16,value&0x0000FFFF)==-1)
-      return -1;
+    if(mem->is_big_endian){
+      if(memory_write_half(mem,address,value>>16)==-1)
+        return -1;
+      if(memory_write_half(mem,address+2,value&0x0000FFFF)==-1)
+        return -1;
+    }else{
+      if(memory_write_half(mem,address+2,value>>16)==-1)
+        return -1;
+      if(memory_write_half(mem,address,value&0x0000FFFF)==-1)
+        return -1;
+    }
     return 0;
 }
