@@ -30,14 +30,16 @@ struct registers_data {
 };
 
 registers registers_create() {
-    registers r = NULL;
+    registers r = malloc(sizeof(struct registers_data));
     return r;
 }
 
 void registers_destroy(registers r) {
+    free(r);
 }
 
 uint8_t get_mode(registers r) {
+    return r->mode;
     return 0;
 } 
 
@@ -46,7 +48,10 @@ int current_mode_has_spsr(registers r) {
 }
 
 int in_a_privileged_mode(registers r) {
-    return 0;
+    if(r->mode != 0b10000){ //
+        return 0;
+    }
+    return -1;
 }
 
 uint32_t read_register(registers r, uint8_t reg) {
