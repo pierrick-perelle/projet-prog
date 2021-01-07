@@ -33,7 +33,7 @@ struct memory_data {
 
 memory memory_create(size_t size, int is_big_endian) {
     memory mem=NULL;
-    mem = malloc(sizeof(memory)*size);
+    mem = malloc(sizeof(memory));
     mem->is_big_endian=is_big_endian;
     mem->data=malloc(sizeof(uint8_t)*size);
     mem->size=size;
@@ -49,36 +49,48 @@ void memory_destroy(memory mem) {
 }
 
 int memory_read_byte(memory mem, uint32_t address, uint8_t *value) {
+    if(address<0 || address>=mem->size)
+      return -1;
 
-
-    *value = get_bit(*(mem->data + address*8) , *(mem->data + address + 8)  );
+    *value = *(mem->data+address);
     return 0;
     //return -1;    //comment détecter les erreurs ?
 }
 
 int memory_read_half(memory mem, uint32_t address, uint16_t *value) {
-    /*uint8_t *temp;
-    if(memory_read_byte(mem,address,temp)==-1)
+    uint8_t temp;
+    if(memory_read_byte(mem,address,&temp)==-1)
       return -1;
     *value=temp<<8;
-    if(memory_read_byte(mem,address+8,temp)==-1)
+    if(memory_read_byte(mem,address+8,&temp)==-1)
       return -1;
-    *value=*value|*temp;
-    return 0;*/
+    *value=*value|temp;
+    return 0;
   
-    if(mem->is_big_endian == is_big_endian())
-       *value = get_bits(*(mem->data + address) , 15,0 );
+    /*if(mem->is_big_endian == is_big_endian())
+       memory_read_byte(mem, address, *value);
+       *value=*value<<8;
+       memory
      else
       *value = get_bits(*(mem->data + address) , 31,16 );
-    return 0;
+    return 0;*/
 }
 
 int memory_read_word(memory mem, uint32_t address, uint32_t *value) {
-    if(address+32>mem->size)
+    uint8_t temp;
+    if(memory_read_byte(mem,address,&temp)==-1)
       return -1;
-    *value = *(mem->data + address) ^ 0xFFFFFFFF;
+    *value=temp<<24;
+    if(memory_read_byte(mem,address+8,&temp)==-1)
+      return -1;
+    *value=*value|(temp<<16);
+    if(memory_read_byte(mem,address+16,&temp)==-1)
+      return -1;
+    *value=*value|(temp<<8);
+    if(memory_read_byte(mem,address+24,&temp)==-1)
+      return -1;
+    *value=*value|temp;
     return 0;
-    return -1;
 }
 
 int memory_write_byte(memory mem, uint32_t address, uint8_t value) {
@@ -90,7 +102,7 @@ int memory_write_byte(memory mem, uint32_t address, uint8_t value) {
 int memory_write_half(memory mem, uint32_t address, uint16_t value) {
     if(memory_write_byte(mem,address,value>>8)==-1)
       return -1;
-    if(memory_write_byte(mem,address+8,value&0x0F)==-1)
+    if(memory_write_byte(mem,address+8,value&0x00FF)==-1)
       return -1;
     return 0;
 }
@@ -98,7 +110,7 @@ int memory_write_half(memory mem, uint32_t address, uint16_t value) {
 int memory_write_word(memory mem, uint32_t address, uint32_t value) {
     if(memory_write_half(mem,address,value>>16)==-1)
       return -1;
-    if(memory_write_half(mem,address+16,value&0x0F)==-1)
+    if(memory_write_half(mem,address+16,value&0x0000FFFF)==-1)
       return -1;
     return 0;
 }
