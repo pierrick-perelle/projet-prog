@@ -62,7 +62,7 @@ int in_a_privileged_mode(registers r) {
 }
 
 uint32_t read_register(registers r, uint8_t reg) {
-    uint32_t value=0;
+    uint32_t value = r->reg[reg];
     return value;
 }
 
