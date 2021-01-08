@@ -72,12 +72,12 @@ uint32_t read_usr_register(registers r, uint8_t reg) {
 }
 
 uint32_t read_cpsr(registers r) {
-    uint32_t value=0;
+    uint32_t value = r->reg[16];
     return value;
 }
 
 uint32_t read_spsr(registers r) {
-    uint32_t value=0;
+    uint32_t value = r->reg[17];
     return value;
 }
 
