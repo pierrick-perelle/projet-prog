@@ -67,8 +67,8 @@ uint32_t read_register(registers r, uint8_t reg) {
 }
 
 uint32_t read_usr_register(registers r, uint8_t reg) {
-    uint32_t value=0;
-    return value;
+    
+    return r->reg[reg];
 }
 
 uint32_t read_cpsr(registers r) {
@@ -82,13 +82,18 @@ uint32_t read_spsr(registers r) {
 }
 
 void write_register(registers r, uint8_t reg, uint32_t value) {
+    r->reg[reg] = value;
 }
 
 void write_usr_register(registers r, uint8_t reg, uint32_t value) {
+
+   r->reg[reg] = value;
 }
 
 void write_cpsr(registers r, uint32_t value) {
+    r->reg[16] = value;
 }
 
 void write_spsr(registers r, uint32_t value) {
+    r->reg[17] = value;
 }
