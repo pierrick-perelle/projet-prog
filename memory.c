@@ -47,6 +47,7 @@ size_t memory_get_size(memory mem) {
 
 void memory_destroy(memory mem) {
     free(mem->data);
+    free(mem);
 }
 
 int memory_read_byte(memory mem, uint32_t address, uint8_t *value) {
