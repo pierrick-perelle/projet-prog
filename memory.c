@@ -1,6 +1,8 @@
 /*
 Armator - simulateur de jeu d'instruction ARMv5T � but p�dagogique
+
 Copyright (C) 201 Guillaume Huard
+
 Ce programme est libre, vous pouvez le redistribuer et/ou le modifier selon les
 termes de la Licence Publique G�n�rale GNU publi�e par la Free Software
 Foundation (version 2 ou bien toute autre version ult�rieure choisie par vous).
@@ -12,6 +14,7 @@ Licence Publique G�n�rale GNU pour plus de d�tails.
 
 Vous devez avoir re�u une copie de la Licence Publique G�n�rale GNU en m�me
 temps que ce programme ; si ce n'est pas le cas, �crivez � la Free Software
+
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 021307,
 �tats-Unis.
 
@@ -55,8 +58,14 @@ int memory_read_byte(memory mem, uint32_t address, uint8_t *value) {
       return -1;
 
     *value = *(mem->data+address);
+<<<<<<< HEAD
     return EXIT_SUCCESS;
+=======
+
+    return NO_ERROR;
+>>>>>>> 01cfaeb1cc2b52920fef09f8c1555599242cdcd3
     //return 1;    //comment d�tecter les erreurs ?
+
 }
 
 int memory_read_half(memory mem, uint32_t address, uint16_t *value) {
