@@ -24,6 +24,12 @@ Contact: Guillaume.Huard@imag.fr
 #include "arm_constants.h"
 #include <stdlib.h>
 
+//define utilisateur 0 -> spsr définit dans arm_constant.h
+ 
+//define for 37 reg
+// interne_R0 = 0, interne_R1 = 1,...
+enum registre_interne {INTERNE_R0, interne_R1, interne_R2, interne_R3,...}
+
 struct registers_data {
     uint32_t reg[37];
     uint8_t mode;
@@ -46,7 +52,7 @@ uint8_t get_mode(registers r) {
 //Voir page 41 et 43 du manuel.
 
 int current_mode_has_spsr(registers r) {
-    if(r->mode != 0b10000 && r->mode != 0b11111){ 
+    if(get_mode(r) != 0b10000 && get_mode(r) != 0b11111){ 
         return 0;
     }
     return -1;
@@ -55,21 +61,36 @@ int current_mode_has_spsr(registers r) {
 //Voir page 41 du manuel.
 
 int in_a_privileged_mode(registers r) {
-    if(r->mode != 0b10000){
+    if(get_mode(r) != 0b10000){
         return 0;
     }
     return -1;
 }
 
 uint32_t read_register(registers r, uint8_t reg) {
+    //penser au remplacement de registre page 43 fonction du mode.
+    //with reg as n register
+    //switch get_mode(r)
+    //  super read_super_register(r,reg)
+    // default read_usr_register() valable pour system et usr
     uint32_t value = r->reg[reg];
     return value;
 }
 
 uint32_t read_usr_register(registers r, uint8_t reg) {
-    
-    return r->reg[reg];
+    switch (reg){
+        case R0:
+            return r->reg[interne_R0];
+    }
 }
+uint32_t read_fast_interrupt_register(registers r, uint8_t reg) {
+    switch (reg){
+        case R8:
+            return r->reg[interne_R8_fiq];
+    }
+}
+/* read_supervisor_register */
+// 
 
 uint32_t read_cpsr(registers r) {
     uint32_t value = r->reg[16];
@@ -77,17 +98,23 @@ uint32_t read_cpsr(registers r) {
 }
 
 uint32_t read_spsr(registers r) {
+    //read_register(r,SPSR)  CPSR defini dans constant
     uint32_t value = r->reg[17];
     return value;
 }
 
 void write_register(registers r, uint8_t reg, uint32_t value) {
+    //switch get_mode(r)
+    //  super write_super_register(r,reg)
+    // default write_usr_register() valable pour system et usr
     r->reg[reg] = value;
 }
 
 void write_usr_register(registers r, uint8_t reg, uint32_t value) {
-
-   r->reg[reg] = value;
+    switch (reg){
+        case R0:
+            r->reg[interne_R0] = value;
+    }
 }
 
 void write_cpsr(registers r, uint32_t value) {
