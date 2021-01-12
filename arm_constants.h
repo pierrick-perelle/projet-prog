@@ -64,7 +64,23 @@ Contact: Guillaume.Huard@imag.fr
 
 /* Registre utilisé 0 -> spsr */
 #define R0 0
-
+#define R1 1
+#define R2 2
+#define R3 3
+#define R4 4
+#define R5 5
+#define R6 6
+#define R7 7
+#define R8 8
+#define R9 9
+#define R10 10
+#define R11 11
+#define R12 12
+#define R13 13
+#define R14 14
+#define PC 15
+#define CPSR 16
+#define SPSR 17
 
 char *arm_get_exception_name(unsigned char exception);
 char *arm_get_mode_name(uint8_t mode);

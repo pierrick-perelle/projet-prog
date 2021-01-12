@@ -55,7 +55,7 @@ int memory_read_byte(memory mem, uint32_t address, uint8_t *value) {
       return -1;
 
     *value = *(mem->data+address);
-    return NO_ERROR;
+    return EXIT_SUCCESS;
     //return 1;    //comment d�tecter les erreurs ?
 }
 
@@ -76,7 +76,7 @@ int memory_read_half(memory mem, uint32_t address, uint16_t *value) {
         return -1;
       *value=*value|temp;
     }
-    return NO_ERROR;
+    return EXIT_SUCCESS;
   
     /*if(mem->is_big_endian == is_big_endian())
        memory_read_byte(mem, address, *value);
@@ -84,7 +84,7 @@ int memory_read_half(memory mem, uint32_t address, uint16_t *value) {
        memory
      else
       *value = get_bits(*(mem->data + address) , 31,16 );
-    return NO_ERROR;*/
+    return EXIT_SUCCESS;*/
 }
 
 int memory_read_word(memory mem, uint32_t address, uint32_t *value) {
@@ -116,14 +116,14 @@ int memory_read_word(memory mem, uint32_t address, uint32_t *value) {
         return -1;
       *value=*value|temp;
     }
-    return NO_ERROR;
+    return EXIT_SUCCESS;
 }
 
 int memory_write_byte(memory mem, uint32_t address, uint8_t value) {
     if(address<0 || address>=mem->size)
       return -1;
     *(mem->data + address) = value;
-    return NO_ERROR;
+    return EXIT_SUCCESS;
 }
 
 int memory_write_half(memory mem, uint32_t address, uint16_t value) {
@@ -138,7 +138,7 @@ int memory_write_half(memory mem, uint32_t address, uint16_t value) {
       if(memory_write_byte(mem,address,value&0x00FF)==-1)
         return -1;
     }
-    return NO_ERROR;
+    return EXIT_SUCCESS;
 }
 
 int memory_write_word(memory mem, uint32_t address, uint32_t value) {
@@ -153,5 +153,5 @@ int memory_write_word(memory mem, uint32_t address, uint32_t value) {
       if(memory_write_half(mem,address,value&0x0000FFFF)==-1)
         return -1;
     }
-    return NO_ERROR;
+    return EXIT_SUCCESS;
 }
