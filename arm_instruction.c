@@ -48,13 +48,12 @@ static int arm_execute_instruction(arm_core p) {
     }
 
     //ins contient maintenant l'instruction courante. voir arm_fetch()
-
+    //on check si la condition est bonne.
     cond = get_cond(ins);
     if(!check_cond(cond)){
         return UNDEFINED_INSTRUCTION;
     }
  
-
     //on définit l'instruction en question
     instruction = decode_ins(ins);
 
@@ -143,9 +142,54 @@ int check_cond(cond condition){
     }
 }
 
-enum ins_t decode_ins(uint32_t ins){
-    //reconnaitre entre data_process branch/misc/copro et load/store
-    if(ins )
+static int decode_ins(arm_core p,uint32_t ins){
+    uint8_t pre_opcode = get_bits(ins,27,25); // 27-25
+    uint8_t first_half_opcode = get_bits(ins,24,23); //24-23
+    uint8_t opcode = get_bits(ins,24,21); //24-21
+    uint8_t bit_4 = get_bit(ins,4); //4
+    uint8_t bit_20 = get_bit(ins,20); //20
+    uint8_t bit_7 = get_bit(ins,7);
+
+    switch(pre_opcode){
+        case 0:
+            if(first_half_opcode == 2 && bit_20 == 0 && bit_4 == 0) {
+                return arm_miscellaneous(p,ins);
+            }
+            else if(bit_7 == 0 && bit_4 == 1){
+                return arm_data_processing_shift(p,ins);
+            }
+            else if(bit_4 == 0){
+                return arm_data_processing_shift(p,ins);
+            }
+            else{return UNDEFINED_INSTRUCTION;}
+        case 1:
+            if(first_half_opcode == 2){
+                return UNDEFINED_INSTRUCTION;
+            }
+            else{
+                return arm_data_processing_immediate_msr(p,ins);
+            }
+        case 2:
+            return arm_load_store(p,ins);
+        case 3:
+            if(bit_4 == 0){
+                return arm_load_store(p,ins);
+            }
+            else{
+                return  UNDEFINED_INSTRUCTION;
+            }
+        case 4:
+            return arm_load_store_multiple(p,ins);
+        case 5:
+            return arm_branch(p,ins);
+        case 6:
+            return arm_coprocessor_load_store(p,ins);
+        case 7:
+            return arm_coprocessor_others_swi(p,ubs);
+        default:
+            return UNDEFINED_INSTRUCTION;
+    }
+
 }
 
 enum cond get_cond(uint32_t ins){
