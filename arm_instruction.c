@@ -57,7 +57,7 @@ static int arm_execute_instruction(arm_core p) {
 
 }
 
-int check_cond(arm_core p,enum cond_t condition){
+int check_cond(arm_core p,uint8_t condition){
 
     //on récup les flags (ZNVC + d'autre inutile ici) voir page 49.
     uint32_t flags = arm_read_cpsr(p) >> 28;
@@ -121,10 +121,9 @@ int check_cond(arm_core p,enum cond_t condition){
     return r;
 }
 
-static int decode_ins(arm_core p,uint32_t ins){
+int decode_ins(arm_core p,uint32_t ins){
     uint8_t pre_opcode = get_bits(ins,27,25); // 27-25
     uint8_t first_half_opcode = get_bits(ins,24,23); //24-23
-    uint8_t opcode = get_bits(ins,24,21); //24-21
     uint8_t bit_4 = get_bit(ins,4); //4
     uint8_t bit_20 = get_bit(ins,20); //20
     uint8_t bit_7 = get_bit(ins,7);

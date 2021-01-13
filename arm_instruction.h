@@ -25,6 +25,8 @@ Contact: Guillaume.Huard@imag.fr
 #include "arm_core.h"
 
 int arm_step(arm_core p);
-void initialiser_func_handler();
+int check_cond(arm_core p,uint8_t condition);
+int decode_ins(arm_core p,uint32_t ins);
+enum cond_t get_cond(uint32_t ins);
 
 #endif

@@ -23,5 +23,4 @@ Contact: Guillaume.Huard@imag.fr
 #include "arm.h"
 
 void arm_init() {
-	initialiser_func_handler();
 }
