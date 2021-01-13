@@ -88,58 +88,62 @@ int check_cond(cond condition){
     uint32_t flags = arm_read_cpsr(p) >> 28;
 
     //cond contient le type d'instruction EQ,NE etc.. voir page 112.
-
+    int r = 0;
     switch (condition){
+        
     case EQ : 
-        result = flags[3] == 1;
+        r = (flags & 4) != 0;
         break;
     case NE : 
-    
+        r = (flags & 4) == 0;
         break;
     case CS_HS :
-    
+        r = (flags & 2) != 0;
         break;
     case CC_LO :
-    
+        r = (flags & 2) == 0;
         break;
     case MI :
-    
+        r = (flags & 8) != 0;
         break;
     case PL :
-    
+        r = (flags & 8) == 0;
         break;
     case VS :
-    
+        r= (flags & 1) != 0;
         break;
     case VC :
-    
+        r = (flags & 1) == 0;
         break;
     case HI :
-    
+        r = (flags & 2) && !(flags & 4);
         break;
     case LS :
-    
+        r = !(flags & 2) || (flags & 4);
         break;
     case GE :
-    
+        r = ((flags & 8) >> 3) == (flags & 1);
         break;
     case LT :
-    
+        r = ((flags & 8) >> 3) != (flags & 1);
         break;
     case GT :
-    
+        r = !(flags & 4) && (((flags & 8) >> 3) == (flags & 1));
         break;
     case LE :
-    
+        r = (flags & 4) || (((flags & 8) >> 3) != (flags & 1));
         break;
     case AL :
-    
+        r = 1;
         break;
     case UNCOND : 
+        r = 1;
         fprintf(stderr,"ARMv4 condition unpredictable \n"); //en ARMv5 UNCOND (0b1111) peut donner lieu à d'autre instruction voir page 149.
         break;
-    default: return UNDEFINED_INSTRUCTION;
+    default: r = 0;
     }
+
+    return r;
 }
 
 static int decode_ins(arm_core p,uint32_t ins){
