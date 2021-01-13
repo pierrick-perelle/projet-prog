@@ -48,7 +48,7 @@ static int arm_execute_instruction(arm_core p) {
     //ins contient maintenant l'instruction courante. voir arm_fetch()
     //on check si la condition est bonne.
     cond = get_cond(ins);
-    if(!check_cond(cond)){
+    if(!check_cond(p,cond)){
         return UNDEFINED_INSTRUCTION;
     }
  
@@ -57,7 +57,7 @@ static int arm_execute_instruction(arm_core p) {
 
 }
 
-int check_cond(cond condition){
+int check_cond(arm_core p,enum cond_t condition){
 
     //on récup les flags (ZNVC + d'autre inutile ici) voir page 49.
     uint32_t flags = arm_read_cpsr(p) >> 28;
@@ -164,37 +164,15 @@ static int decode_ins(arm_core p,uint32_t ins){
         case 6:
             return arm_coprocessor_load_store(p,ins);
         case 7:
-            return arm_coprocessor_others_swi(p,ubs);
+            return arm_coprocessor_others_swi(p,ins);
         default:
             return UNDEFINED_INSTRUCTION;
     }
 
 }
 
-enum cond get_cond(uint32_t ins){
+enum cond_t get_cond(uint32_t ins){
     return ins >> 28;
-}
-
-void initialiser_func_handler(){
-    /*
-
-
-    int arm_load_store(arm_core p, uint32_t ins);
-    int arm_load_store_multiple(arm_core p, uint32_t ins);
-    int arm_coprocessor_load_store(arm_core p, uint32_t ins);
-
-
-    
-    int arm_branch(arm_core p, uint32_t ins);
-    int arm_coprocessor_others_swi(arm_core p, uint32_t ins);
-    int arm_miscellaneous(arm_core p, uint32_t ins);
-
-    int arm_data_processing(arm_core p,uint32)
-    int arm_data_processing_shift(arm_core p, uint32_t ins);
-    int arm_data_processing_immediate_msr(arm_core p, uint32_t ins);
-    */
-    tab[B_BL] = &arm_branch;
-    tab[AND] = &arm;
 }
 
 int arm_step(arm_core p) {
