@@ -29,86 +29,150 @@ Contact: Guillaume.Huard@imag.fr
 #include "util.h"
 
 //pointeur de function
-typedef int (*ptr_func)(arm_core p, uint32_t ins);
+//typedef int (*ptr_func)(arm_core p, uint32_t ins);
 
 
 //enum de chacun des opcode (cond) voir fig page 112
-enum cond_t {EQ, NE, CS_HS,CC_LO,...,UNCOND}
-enum ins_t {BRANCH, LOAD_STORE, DATA_PROCESS};
+enum cond_t {EQ,NE,CS_HS,CC_LO,MI,PL,VS,VC,HI,LS,GE,LT,GT,LE,AL,UNCOND};
 
 static int arm_execute_instruction(arm_core p) {
     uint32_t ins;
     enum cond_t cond;
-    enum ins_t instruction;
 
     if(arm_fetch(p,&ins) == -1){
         fprintf(stderr,"Erreur de fetch\n");
         return PREFETCH_ABORT;
-        //voir page 58 pour les excpetions.
+        //voir page 58 pour les exceptions.
     }
 
     //ins contient maintenant l'instruction courante. voir arm_fetch()
-
+    //on check si la condition est bonne.
     cond = get_cond(ins);
-    if(cond == UNCOND){
-        fprintf(stderr,"ARMv4 condition unpredictable \n")
-        //en ARMv5 UNCOND (0b1111) peut donner lieu à d'autre instruction voir page 149.
+    if(!check_cond(p,cond)){
         return UNDEFINED_INSTRUCTION;
     }
-    //cond contient le type d'instruction EQ,NE etc.. voir page 112.
+ 
+    //on définit l'instruction en question
+     return decode_ins(p,ins);
+
+}
+
+int check_cond(arm_core p,enum cond_t condition){
 
     //on récup les flags (ZNVC + d'autre inutile ici) voir page 49.
     uint32_t flags = arm_read_cpsr(p) >> 28;
 
-    //on définit l'instruction en question
-    instruction = decode_ins(ins);
-
-    if(instruction == BRANCH){
-        arm_global_branch(p, ins);
+    //cond contient le type d'instruction EQ,NE etc.. voir page 112.
+    int r = 0;
+    switch (condition){
+        
+    case EQ : 
+        r = (flags & 4) != 0;
+        break;
+    case NE : 
+        r = (flags & 4) == 0;
+        break;
+    case CS_HS :
+        r = (flags & 2) != 0;
+        break;
+    case CC_LO :
+        r = (flags & 2) == 0;
+        break;
+    case MI :
+        r = (flags & 8) != 0;
+        break;
+    case PL :
+        r = (flags & 8) == 0;
+        break;
+    case VS :
+        r= (flags & 1) != 0;
+        break;
+    case VC :
+        r = (flags & 1) == 0;
+        break;
+    case HI :
+        r = (flags & 2) && !(flags & 4);
+        break;
+    case LS :
+        r = !(flags & 2) || (flags & 4);
+        break;
+    case GE :
+        r = ((flags & 8) >> 3) == (flags & 1);
+        break;
+    case LT :
+        r = ((flags & 8) >> 3) != (flags & 1);
+        break;
+    case GT :
+        r = !(flags & 4) && (((flags & 8) >> 3) == (flags & 1));
+        break;
+    case LE :
+        r = (flags & 4) || (((flags & 8) >> 3) != (flags & 1));
+        break;
+    case AL :
+        r = 1;
+        break;
+    case UNCOND : 
+        r = 1;
+        fprintf(stderr,"ARMv4 condition unpredictable \n"); //en ARMv5 UNCOND (0b1111) peut donner lieu à d'autre instruction voir page 149.
+        break;
+    default: r = 0;
     }
-    else if(instruction == LOAD_STORE){
-        arm_global_load_store(p,ins);
-    }
-    else if(instruction == DATA_PROCESS){
-        arm_global_data_process(p,ins);
-    }
-    else{return UNDEFINED_INSTRUCTION;}
 
-
-
-
-    return 0;
+    return r;
 }
 
-enum ins_t decode_ins(uint32_t ins){
-    //reconnaitre entre data_process branch/misc/copro et load/store
-    if(ins )
+static int decode_ins(arm_core p,uint32_t ins){
+    uint8_t pre_opcode = get_bits(ins,27,25); // 27-25
+    uint8_t first_half_opcode = get_bits(ins,24,23); //24-23
+    uint8_t opcode = get_bits(ins,24,21); //24-21
+    uint8_t bit_4 = get_bit(ins,4); //4
+    uint8_t bit_20 = get_bit(ins,20); //20
+    uint8_t bit_7 = get_bit(ins,7);
+
+    switch(pre_opcode){
+        case 0:
+            if(first_half_opcode == 2 && bit_20 == 0 && bit_4 == 0) {
+                return arm_miscellaneous(p,ins);
+            }
+            else if(bit_7 == 0 && bit_4 == 1){
+                return arm_data_processing_shift(p,ins);
+            }
+            else if(bit_4 == 0){
+                return arm_data_processing_shift(p,ins);
+            }
+            else{return UNDEFINED_INSTRUCTION;}
+        case 1:
+            if(first_half_opcode == 2){
+                return UNDEFINED_INSTRUCTION;
+            }
+            else{
+                return arm_data_processing_immediate_msr(p,ins);
+            }
+        case 2:
+            return arm_load_store(p,ins);
+        case 3:
+            if(bit_4 == 0){
+                return arm_load_store(p,ins);
+            }
+            else{
+                return  UNDEFINED_INSTRUCTION;
+            }
+        case 4:
+            return arm_load_store_multiple(p,ins);
+        case 5:
+            return arm_branch(p,ins);
+        case 6:
+            return arm_coprocessor_load_store(p,ins);
+        case 7:
+            return arm_coprocessor_others_swi(p,ins);
+        default:
+            return UNDEFINED_INSTRUCTION;
+    }
+
 }
 
-enum cond get_cond(uint32_t ins){
+enum cond_t get_cond(uint32_t ins){
     return ins >> 28;
-}
-
-void initialiser_func_handler(){
-    /*
-
-
-    int arm_load_store(arm_core p, uint32_t ins);
-    int arm_load_store_multiple(arm_core p, uint32_t ins);
-    int arm_coprocessor_load_store(arm_core p, uint32_t ins);
-
-
-    
-    int arm_branch(arm_core p, uint32_t ins);
-    int arm_coprocessor_others_swi(arm_core p, uint32_t ins);
-    int arm_miscellaneous(arm_core p, uint32_t ins);
-
-    int arm_data_processing(arm_core p,uint32)
-    int arm_data_processing_shift(arm_core p, uint32_t ins);
-    int arm_data_processing_immediate_msr(arm_core p, uint32_t ins);
-    */
-    tab[B_BL] = &arm_branch;
-    tab[AND] = &arm_
 }
 
 int arm_step(arm_core p) {
