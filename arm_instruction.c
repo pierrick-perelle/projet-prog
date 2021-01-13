@@ -33,7 +33,7 @@ typedef int (*ptr_func)(arm_core p, uint32_t ins);
 
 
 //enum de chacun des opcode (cond) voir fig page 112
-enum cond_t {EQ, NE, CS_HS,CC_LO,MI,PL,VS,VC,HI,LS,GE,LT,GT,LE,AL,UNCOND};
+enum cond_t {EQ,NE,CS_HS,CC_LO,MI,PL,VS,VC,HI,LS,GE,LT,GT,LE,AL,UNCOND};
 enum ins_t {BRANCH, LOAD_STORE, DATA_PROCESS};
 
 static int arm_execute_instruction(arm_core p) {
@@ -50,12 +50,49 @@ static int arm_execute_instruction(arm_core p) {
     //ins contient maintenant l'instruction courante. voir arm_fetch()
 
     cond = get_cond(ins);
+    if(!check_cond(cond)){
+        return UNDEFINED_INSTRUCTION;
+    }
  
-    //cond contient le type d'instruction EQ,NE etc.. voir page 112.
-    switch (cond)
-    {
-    case EQ : 
 
+    //on définit l'instruction en question
+    instruction = decode_ins(ins);
+
+
+
+    switch (instruction)
+    {
+        case BRANCH : 
+            arm_global_branch(p, ins);
+            
+             break;
+
+        case LOAD_STORE :
+            arm_global_load_store(p,ins);
+            break;
+
+        case DATA_PROCESS :
+            arm_global_data_process(p,ins);
+             break;
+
+        default :
+            return UNDEFINED_INSTRUCTION;
+    }
+
+
+    return 0;
+}
+
+int check_cond(cond condition){
+
+    //on récup les flags (ZNVC + d'autre inutile ici) voir page 49.
+    uint32_t flags = arm_read_cpsr(p) >> 28;
+
+    //cond contient le type d'instruction EQ,NE etc.. voir page 112.
+
+    switch (condition){
+    case EQ : 
+        result = flags[3] == 1;
         break;
     case NE : 
     
@@ -104,35 +141,6 @@ static int arm_execute_instruction(arm_core p) {
         break;
     default: return UNDEFINED_INSTRUCTION;
     }
-    //on récup les flags (ZNVC + d'autre inutile ici) voir page 49.
-    uint32_t flags = arm_read_cpsr(p) >> 28;
-
-    //on définit l'instruction en question
-    instruction = decode_ins(ins);
-
-
-
-    switch (instruction)
-    {
-        case BRANCH : 
-            arm_global_branch(p, ins);
-            
-             break;
-
-        case LOAD_STORE :
-            arm_global_load_store(p,ins);
-            break;
-
-        case DATA_PROCESS :
-            arm_global_data_process(p,ins);
-             break;
-
-        default :
-            return UNDEFINED_INSTRUCTION;
-    }
-
-
-    return 0;
 }
 
 enum ins_t decode_ins(uint32_t ins){
