@@ -313,7 +313,7 @@ void write_usr_register(registers r, uint8_t reg, uint32_t value) {
     }
 }
 
-void read_svc_register(registers r, uint8_t reg,uint32_t value) {
+void write_svc_register(registers r, uint8_t reg,uint32_t value) {
     switch (reg){
         case R13:
             r->reg[INTERNE_R13_SVC] = value;
@@ -322,11 +322,11 @@ void read_svc_register(registers r, uint8_t reg,uint32_t value) {
         case SPSR:
             r->reg[INTERNE_SPSR_SVC] = value;
         default:
-            return EXIT_FAILURE;
+            EXIT_FAILURE;
     }
 }
 
-void read_abt_register(registers r, uint8_t reg,uint32_t value) {
+void write_abt_register(registers r, uint8_t reg,uint32_t value) {
     switch (reg){
         case R13:
             r->reg[INTERNE_R13_ABT] = value;
@@ -335,11 +335,11 @@ void read_abt_register(registers r, uint8_t reg,uint32_t value) {
         case SPSR:
             r->reg[INTERNE_SPSR_ABT] = value;
         default:
-            return EXIT_FAILURE;
+            EXIT_FAILURE;
     }
 }
 
-void read_und_register(registers r, uint8_t reg,uint32_t value) {
+void write_und_register(registers r, uint8_t reg,uint32_t value) {
     switch (reg){
         case R13:
             r->reg[INTERNE_R13_UND] = value;
@@ -348,12 +348,12 @@ void read_und_register(registers r, uint8_t reg,uint32_t value) {
         case SPSR:
             r->reg[INTERNE_SPSR_UND] = value;
         default:
-            return EXIT_FAILURE;
+            EXIT_FAILURE;
     }
 }
 
 
-void read_irq_register(registers r, uint8_t reg,uint32_t value) {
+void write_irq_register(registers r, uint8_t reg,uint32_t value) {
     switch (reg){
         case R13:
             r->reg[INTERNE_R13_IRQ] = value;
@@ -362,11 +362,11 @@ void read_irq_register(registers r, uint8_t reg,uint32_t value) {
         case SPSR:
             r->reg[INTERNE_SPSR_IRQ] = value;
         default:
-            return EXIT_FAILURE;
+            EXIT_FAILURE;
     }
 }
 
-void read_fiq_register(registers r, uint8_t reg,uint32_t value) {
+void write_fiq_register(registers r, uint8_t reg,uint32_t value) {
     switch (reg){
         case R8:
             r->reg[INTERNE_R8_FIQ] = value;
@@ -385,7 +385,7 @@ void read_fiq_register(registers r, uint8_t reg,uint32_t value) {
         case SPSR:
             r->reg[INTERNE_SPSR_FIQ] = value;
         default:
-            return EXIT_FAILURE;
+            EXIT_FAILURE;
     }
 }
 

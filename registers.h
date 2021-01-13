@@ -26,6 +26,18 @@ Contact: Guillaume.Huard@imag.fr
 
 typedef struct registers_data *registers;
 
+uint32_t read_svc_register(registers r, uint8_t reg);
+uint32_t read_abt_register(registers r, uint8_t reg);
+uint32_t read_und_register(registers r, uint8_t reg);
+uint32_t read_irq_register(registers r, uint8_t reg);
+uint32_t read_fiq_register(registers r, uint8_t reg);
+
+void write_svc_register(registers r, uint8_t reg,uint32_t value);
+void write_abt_register(registers r, uint8_t reg,uint32_t value);
+void write_und_register(registers r, uint8_t reg,uint32_t value);
+void write_irq_register(registers r, uint8_t reg,uint32_t value);
+void write_fiq_register(registers r, uint8_t reg,uint32_t value);
+
 registers registers_create();
 void registers_destroy(registers r);
 
@@ -41,5 +53,8 @@ void write_register(registers r, uint8_t reg, uint32_t value);
 void write_usr_register(registers r, uint8_t reg, uint32_t value);
 void write_cpsr(registers r, uint32_t value);
 void write_spsr(registers r, uint32_t value);
+
+
+
 
 #endif
