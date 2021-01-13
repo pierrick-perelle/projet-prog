@@ -33,7 +33,7 @@ typedef int (*ptr_func)(arm_core p, uint32_t ins);
 
 
 //enum de chacun des opcode (cond) voir fig page 112
-enum cond_t {EQ, NE, CS_HS,CC_LO,...,UNCOND}
+enum cond_t {EQ, NE, CS_HS,CC_LO,MI,PL,VS,VC,HI,LS,GE,LT,GT,LE,AL,UNCOND};
 enum ins_t {BRANCH, LOAD_STORE, DATA_PROCESS};
 
 static int arm_execute_instruction(arm_core p) {
@@ -50,31 +50,86 @@ static int arm_execute_instruction(arm_core p) {
     //ins contient maintenant l'instruction courante. voir arm_fetch()
 
     cond = get_cond(ins);
-    if(cond == UNCOND){
-        fprintf(stderr,"ARMv4 condition unpredictable \n")
-        //en ARMv5 UNCOND (0b1111) peut donner lieu à d'autre instruction voir page 149.
-        return UNDEFINED_INSTRUCTION;
-    }
+ 
     //cond contient le type d'instruction EQ,NE etc.. voir page 112.
+    switch (cond)
+    {
+    case EQ : 
 
+        break;
+    case NE : 
+    
+        break;
+    case CS_HS :
+    
+        break;
+    case CC_LO :
+    
+        break;
+    case MI :
+    
+        break;
+    case PL :
+    
+        break;
+    case VS :
+    
+        break;
+    case VC :
+    
+        break;
+    case HI :
+    
+        break;
+    case LS :
+    
+        break;
+    case GE :
+    
+        break;
+    case LT :
+    
+        break;
+    case GT :
+    
+        break;
+    case LE :
+    
+        break;
+    case AL :
+    
+        break;
+    case UNCOND : 
+        fprintf(stderr,"ARMv4 condition unpredictable \n"); //en ARMv5 UNCOND (0b1111) peut donner lieu à d'autre instruction voir page 149.
+        break;
+    default: return UNDEFINED_INSTRUCTION;
+    }
     //on récup les flags (ZNVC + d'autre inutile ici) voir page 49.
     uint32_t flags = arm_read_cpsr(p) >> 28;
 
     //on définit l'instruction en question
     instruction = decode_ins(ins);
 
-    if(instruction == BRANCH){
-        arm_global_branch(p, ins);
-    }
-    else if(instruction == LOAD_STORE){
-        arm_global_load_store(p,ins);
-    }
-    else if(instruction == DATA_PROCESS){
-        arm_global_data_process(p,ins);
-    }
-    else{return UNDEFINED_INSTRUCTION;}
 
 
+    switch (instruction)
+    {
+        case BRANCH : 
+            arm_global_branch(p, ins);
+            
+             break;
+
+        case LOAD_STORE :
+            arm_global_load_store(p,ins);
+            break;
+
+        case DATA_PROCESS :
+            arm_global_data_process(p,ins);
+             break;
+
+        default :
+            return UNDEFINED_INSTRUCTION;
+    }
 
 
     return 0;
@@ -108,7 +163,7 @@ void initialiser_func_handler(){
     int arm_data_processing_immediate_msr(arm_core p, uint32_t ins);
     */
     tab[B_BL] = &arm_branch;
-    tab[AND] = &arm_
+    tab[AND] = &arm;
 }
 
 int arm_step(arm_core p) {

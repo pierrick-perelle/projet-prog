@@ -58,12 +58,7 @@ int memory_read_byte(memory mem, uint32_t address, uint8_t *value) {
       return -1;
 
     *value = *(mem->data+address);
-<<<<<<< HEAD
     return EXIT_SUCCESS;
-=======
-
-    return NO_ERROR;
->>>>>>> 01cfaeb1cc2b52920fef09f8c1555599242cdcd3
     //return 1;    //comment d�tecter les erreurs ?
 
 }
