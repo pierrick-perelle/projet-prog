@@ -94,7 +94,7 @@ int arm_data_processing_shift(arm_core p, uint32_t ins) {
             if (arm_current_mode_has_spsr(p)){
               arm_write_cpsr(p,arm_read_spsr(p));
             }else{
-              //UNPREDICTABLE
+              return DATA_ABORT; //UNPREDICTABLE
             }
           }else if (S==1){
             uint32_t clearflagscpsr = arm_read_cpsr(p) & 0x3FFFFFFF;        //on passse N Z et C à 0, on garde V et C
@@ -115,7 +115,7 @@ int arm_data_processing_shift(arm_core p, uint32_t ins) {
             if (arm_current_mode_has_spsr(p)){
               arm_write_cpsr(p,arm_read_spsr(p));
             }else{
-              //UNPREDICTABLE
+              return DATA_ABORT; //UNPREDICTABLE
             }
           }else if (S==1){
             uint32_t clearflagscpsr = arm_read_cpsr(p) & 0x3FFFFFFF;        
@@ -136,7 +136,7 @@ int arm_data_processing_shift(arm_core p, uint32_t ins) {
             if (arm_current_mode_has_spsr(p)){
               arm_write_cpsr(p,arm_read_spsr(p));
             }else{
-              //UNPREDICTABLE
+              return DATA_ABORT; //UNPREDICTABLE
             }
           }else if (S==1){
             uint32_t clearflagscpsr = arm_read_cpsr(p) & 0x0FFFFFFF;              //cette fois on clear V aussi
@@ -162,7 +162,7 @@ int arm_data_processing_shift(arm_core p, uint32_t ins) {
             if (arm_current_mode_has_spsr(p)){
               arm_write_cpsr(p,arm_read_spsr(p));
             }else{
-              //UNPREDICTABLE
+              return DATA_ABORT; //UNPREDICTABLE
             }
           }else if (S==1){
             uint32_t clearflagscpsr = arm_read_cpsr(p) & 0x0FFFFFFF;              
@@ -188,7 +188,7 @@ int arm_data_processing_shift(arm_core p, uint32_t ins) {
             if (arm_current_mode_has_spsr(p)){
               arm_write_cpsr(p,arm_read_spsr(p));
             }else{
-              //UNPREDICTABLE
+              return DATA_ABORT; //UNPREDICTABLE
             }
           }else if (S==1){
             uint32_t clearflagscpsr = arm_read_cpsr(p) & 0x0FFFFFFF;              
@@ -214,7 +214,7 @@ int arm_data_processing_shift(arm_core p, uint32_t ins) {
             if (arm_current_mode_has_spsr(p)){
               arm_write_cpsr(p,arm_read_spsr(p));
             }else{
-              //UNPREDICTABLE
+              return DATA_ABORT; //UNPREDICTABLE
             }
           }else if (S==1){
             uint32_t clearflagscpsr = arm_read_cpsr(p) & 0x0FFFFFFF;              
@@ -240,7 +240,7 @@ int arm_data_processing_shift(arm_core p, uint32_t ins) {
             if (arm_current_mode_has_spsr(p)){
               arm_write_cpsr(p,arm_read_spsr(p));
             }else{
-              //UNPREDICTABLE
+              return DATA_ABORT; //UNPREDICTABLE
             }
           }else if (S==1){
             uint32_t clearflagscpsr = arm_read_cpsr(p) & 0x0FFFFFFF;              
@@ -266,7 +266,7 @@ int arm_data_processing_shift(arm_core p, uint32_t ins) {
             if (arm_current_mode_has_spsr(p)){
               arm_write_cpsr(p,arm_read_spsr(p));
             }else{
-              //UNPREDICTABLE;
+              return DATA_ABORT; //UNPREDICTABLE;
             }
           }else if (S==1){
             uint32_t clearflagscpsr = arm_read_cpsr(p) & 0x0FFFFFFF;              
@@ -436,7 +436,7 @@ int arm_data_processing_shift(arm_core p, uint32_t ins) {
                 if (arm_current_mode_has_spsr(p)){
                   arm_write_cpsr(p,arm_read_spsr(p));
                 }else{
-                  //UNPREDICTABLE
+                  return DATA_ABORT; //UNPREDICTABLE
                 }
           }else if (S==1){
                 uint32_t clearflagscpsr = arm_read_cpsr(p) & 0x3FFFFFFF;        //on passse N Z et C à 0, on garde V et C
@@ -470,7 +470,7 @@ int arm_data_processing_shift(arm_core p, uint32_t ins) {
                 if (arm_current_mode_has_spsr(p)){
                   arm_write_cpsr(p,arm_read_spsr(p));
                 }else{
-                  //UNPREDICTABLE
+                  return DATA_ABORT; //UNPREDICTABLE
                 }
               }else if (S==1){
                 uint32_t clearflagscpsr = arm_read_cpsr(p) & 0x3FFFFFFF;        //on passse N Z et C à 0, on garde V et C
@@ -504,7 +504,7 @@ int arm_data_processing_shift(arm_core p, uint32_t ins) {
                 if (arm_current_mode_has_spsr(p)){
                   arm_write_cpsr(p,arm_read_spsr(p));
                 }else{
-                  //UNPREDICTABLE
+                  return DATA_ABORT; //UNPREDICTABLE
                 }
               }else if (S==1){
                 uint32_t clearflagscpsr = arm_read_cpsr(p) & 0x3FFFFFFF;        //on passse N Z et C à 0, on garde V et C
@@ -538,7 +538,7 @@ int arm_data_processing_shift(arm_core p, uint32_t ins) {
                 if (arm_current_mode_has_spsr(p)){
                   arm_write_cpsr(p,arm_read_spsr(p));
                 }else{
-                  //UNPREDICTABLE
+                  return DATA_ABORT; //UNPREDICTABLE
                 }
               }else if (S==1){
                 uint32_t clearflagscpsr = arm_read_cpsr(p) & 0x3FFFFFFF;        //on passse N Z et C à 0, on garde V et C
