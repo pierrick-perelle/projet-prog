@@ -465,7 +465,7 @@ int arm_data_processing_shift(arm_core p, uint32_t ins) {
     		C Flag = shifter_carry_out
     		V Flag = unaffected
     		*/
-    		      arm_write_register(p,rd,arm_read_register(p,rn)|shifter_operand); //AND
+    		      arm_write_register(p,rd,shifter_operand);
               if (S==1 && rd==PC){
                 if (arm_current_mode_has_spsr(p)){
                   arm_write_cpsr(p,arm_read_spsr(p));
