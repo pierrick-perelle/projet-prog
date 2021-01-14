@@ -1,24 +1,24 @@
 /*
-Armator - simulateur de jeu d'instruction ARMv5T à but pédagogique
+Armator - simulateur de jeu d'instruction ARMv5T Ã  but pÃ©dagogique
 Copyright (C) 2011 Guillaume Huard
 Ce programme est libre, vous pouvez le redistribuer et/ou le modifier selon les
-termes de la Licence Publique Générale GNU publiée par la Free Software
-Foundation (version 2 ou bien toute autre version ultérieure choisie par vous).
+termes de la Licence Publique GÃ©nÃ©rale GNU publiÃ©e par la Free Software
+Foundation (version 2 ou bien toute autre version ultÃ©rieure choisie par vous).
 
-Ce programme est distribué car potentiellement utile, mais SANS AUCUNE
+Ce programme est distribuÃ© car potentiellement utile, mais SANS AUCUNE
 GARANTIE, ni explicite ni implicite, y compris les garanties de
-commercialisation ou d'adaptation dans un but spécifique. Reportez-vous à la
-Licence Publique Générale GNU pour plus de détails.
+commercialisation ou d'adaptation dans un but spÃ©cifique. Reportez-vous Ã  la
+Licence Publique GÃ©nÃ©rale GNU pour plus de dÃ©tails.
 
-Vous devez avoir reçu une copie de la Licence Publique Générale GNU en même
-temps que ce programme ; si ce n'est pas le cas, écrivez à la Free Software
+Vous devez avoir reÃ§u une copie de la Licence Publique GÃ©nÃ©rale GNU en mÃªme
+temps que ce programme ; si ce n'est pas le cas, Ã©crivez Ã  la Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307,
-États-Unis.
+Ã‰tats-Unis.
 
 Contact: Guillaume.Huard@imag.fr
-	 Bâtiment IMAG
+	 BÃ¢timent IMAG
 	 700 avenue centrale, domaine universitaire
-	 38401 Saint Martin d'Hères
+	 38401 Saint Martin d'HÃ¨res
 */
 #include "arm_load_store.h"
 #include "arm_exception.h"
@@ -117,7 +117,7 @@ int arm_load_store(arm_core p, uint32_t ins) {
                                 index = ror(arm_read_register(p, rm), shift_imm);
                             }
                             break;
-                        default: // On est pas censé arriver là...
+                        default: // On est pas censÃ© arriver lÃ ...
                             return UNDEFINED_INSTRUCTION;
                     }
                     if (u_bit == 1){
@@ -128,7 +128,7 @@ int arm_load_store(arm_core p, uint32_t ins) {
                     }
                 }
             }
-            else{ // get_bit(ins,4) == 1 - On est pas censé arriver là...
+            else{ // get_bit(ins,4) == 1 - On est pas censÃ© arriver lÃ ...
                 return UNDEFINED_INSTRUCTION;
             }
         }
@@ -181,81 +181,86 @@ int arm_load_store(arm_core p, uint32_t ins) {
     }
     
     else{ // get_bits(ins,26) == 0 - LDRH & SDRH
-        uint8_t i_bit = get_bit(ins,22);
-        uint8_t immedH = get_bits(ins,11,8);
-        uint8_t immedL = get_bits(ins,3,0); // Correspond aussi à rm dans le register offset
-        
-        // Calcul de l'adresse - Addressing Mode 3 - A5.3 (p 473)
-        if (((p_bit == 1 && w_bit == 1) || (p_bit == 0 && w_bit == 0)) && rn == 15){
-            return DATA_ABORT; // UNPREDICTABLE
-        }
-        if (i_bit ==1){ // Immediate offset - A5.3.2 (p 475)
-            uint8_t offset_8 = (immedH << 4) | immedL;
-            if (u_bit == 1){
-                address = arm_read_register(p, rn) + offset_8;
-            }
-            else{ // U == 0
-                address = arm_read_register(p, rn) - offset_8;
-            }
-        }
-        else{ // Register offset - A5.3.3 (p 476)
-            if (((p_bit == 1 && w_bit == 1) || (p_bit == 0 && w_bit == 0)) && rn == immedL){
+        if (get_bit(ins,6) == 0 && get_bit(ins,5) == 1){
+            uint8_t i_bit = get_bit(ins,22);
+            uint8_t immedH = get_bits(ins,11,8);
+            uint8_t immedL = get_bits(ins,3,0); // Correspond aussi Ã  rm dans le register offset
+            
+            // Calcul de l'adresse - Addressing Mode 3 - A5.3 (p 473)
+            if (((p_bit == 1 && w_bit == 1) || (p_bit == 0 && w_bit == 0)) && rn == 15){
                 return DATA_ABORT; // UNPREDICTABLE
             }
-            if (immedL == 15){ 
-                return DATA_ABORT; // UNPREDICTABLE
-            }
-            if (u_bit == 1){
-                address = arm_read_register(p, rn) + arm_read_register(p, immedL);
-            }
-            else{ // U == 0
-                address = arm_read_register(p, rn) - arm_read_register(p, immedL);
-            }
-        }
-        if (p_bit == 1 && w_bit == 1){ // Pre-indexed - A5.3.4 (p 477), A5.3.5 (p 478)
-            arm_write_register(p, rn, address);
-        }
-        if (p_bit == 0 && w_bit == 0){ // Post-indexed - A5.3.6 (p 479), A5.3.7 (p 480)
-            uint32_t temporH;
-            temporH = arm_read_register(p, rn);
-            arm_write_register(p, rn, address);
-            address = temporH;
-        }
-        if (p_bit == 0 && w_bit == 1){
-            return DATA_ABORT; // UNPREDICTABLE
-        }
-        
-        // Execution de l'instruction
-         if (l_bit == 1){ // LDRH - A4.1.28 (p 204)
-             if (address%2 != 0){ // CP15_reg1_Ubit == 0
-                 if (get_bit(address,0) == 0){
-                     arm_read_half(p, address, &valueH);
-                 }
-                 else{
-                     return DATA_ABORT; // UNPREDICTABLE
-                 }
-             }
-             else{ // CP15_reg1_Ubit == 1
-                 arm_read_half(p, address, &valueH);
-             }
-             arm_write_register(p, rd, valueH);
-             //Rd = ZeroExtend(data[15:0])
-         }
-         else{ // l_bit == 0 - STRH - A4.1.104 (p 354)
-            if (address%2 != 0){ // CP15_reg1_Ubit == 0
-                if (get_bit(address,0) == 0){
-                    arm_write_byte(p, address, get_bits(arm_read_register(p, rd),15,0));
+            if (i_bit == 1){ // Immediate offset - A5.3.2 (p 475)
+                uint8_t offset_8 = (immedH << 4) | immedL;
+                if (u_bit == 1){
+                    address = arm_read_register(p, rn) + offset_8;
                 }
-                else{
+                else{ // U == 0
+                    address = arm_read_register(p, rn) - offset_8;
+                }
+            }
+            else{ // Register offset - A5.3.3 (p 476)
+                if (((p_bit == 1 && w_bit == 1) || (p_bit == 0 && w_bit == 0)) && rn == immedL){
                     return DATA_ABORT; // UNPREDICTABLE
                 }
+                if (immedL == 15){ 
+                    return DATA_ABORT; // UNPREDICTABLE
+                }
+                if (u_bit == 1){
+                    address = arm_read_register(p, rn) + arm_read_register(p, immedL);
+                }
+                else{ // U == 0
+                    address = arm_read_register(p, rn) - arm_read_register(p, immedL);
+                }
+            }
+            if (p_bit == 1 && w_bit == 1){ // Pre-indexed - A5.3.4 (p 477), A5.3.5 (p 478)
+                arm_write_register(p, rn, address);
+            }
+            if (p_bit == 0 && w_bit == 0){ // Post-indexed - A5.3.6 (p 479), A5.3.7 (p 480)
+                uint32_t temporH;
+                temporH = arm_read_register(p, rn);
+                arm_write_register(p, rn, address);
+                address = temporH;
+            }
+            if (p_bit == 0 && w_bit == 1){
+                return DATA_ABORT; // UNPREDICTABLE
+            }
             
-            }
-            else{ // CP15_reg1_Ubit ==1 
-                arm_write_byte(p, address, get_bits(arm_read_register(p, rd),15,0));
-            }
-         }
-       return NO_ERROR; 
+            // Execution de l'instruction
+             if (l_bit == 1){ // LDRH - A4.1.28 (p 204)
+                 if (address%2 != 0){ // CP15_reg1_Ubit == 0
+                     if (get_bit(address,0) == 0){
+                         arm_read_half(p, address, &valueH);
+                     }
+                     else{
+                         return DATA_ABORT; // UNPREDICTABLE
+                     }
+                 }
+                 else{ // CP15_reg1_Ubit == 1
+                     arm_read_half(p, address, &valueH);
+                 }
+                 arm_write_register(p, rd, valueH);
+                 //Rd = ZeroExtend(data[15:0])
+             }
+             else{ // l_bit == 0 - STRH - A4.1.104 (p 354)
+                if (address%2 != 0){ // CP15_reg1_Ubit == 0
+                    if (get_bit(address,0) == 0){
+                        arm_write_byte(p, address, get_bits(arm_read_register(p, rd),15,0));
+                    }
+                    else{
+                        return DATA_ABORT; // UNPREDICTABLE
+                    }
+                
+                }
+                else{ // CP15_reg1_Ubit ==1 
+                    arm_write_byte(p, address, get_bits(arm_read_register(p, rd),15,0));
+                }
+             }
+        }
+        else{
+            return UNDEFINED_INSTRUCTION;
+        }
+        return NO_ERROR; 
     }
 }
 
