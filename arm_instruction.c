@@ -133,6 +133,9 @@ int decode_ins(arm_core p,uint32_t ins){
             if(first_half_opcode == 2 && bit_20 == 0 && bit_4 == 0) {
                 return arm_miscellaneous(p,ins);
             }
+            else if(bit_7 == 1 && bit_4 == 1){
+                return arm_load_store(p,ins);
+            }
             else if(bit_7 == 0 && bit_4 == 1){
                 return arm_data_processing_shift(p,ins);
             }
