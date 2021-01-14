@@ -306,12 +306,12 @@ int arm_data_processing_shift(arm_core p, uint32_t ins) {
     			if (alu_out == 0){       //  Z Flag = if alu_out == 0 then 1 else 0
     				flags += 1; 		
     			}
-			    flags << 1 ;
+			    flags = flags << 1 ;
 			
 
-    			flags << 1 ;		// C Flag = shifter_carry_out  Inchangé
+    			flags = flags << 1 ;		// C Flag = shifter_carry_out  Inchangé
     
-    			flags << 1 ;		 //  V Flag = unaffected 
+    			flags = flags << 1 ;		 //  V Flag = unaffected 
     
     			flags = flags<<28;
 
@@ -338,12 +338,12 @@ int arm_data_processing_shift(arm_core p, uint32_t ins) {
     			if (alu_out == 0){       //  Z Flag = if alu_out == 0 then 1 else 0
     				flags += 1; 		
     			}
-    			flags << 1 ;
+    			flags = flags << 1 ;
     			
     
-    			flags << 1 ;		// C Flag = shifter_carry_out Inchangé
+    			flags = flags << 1 ;		// C Flag = shifter_carry_out Inchangé
     
-    			flags << 1 ;		 //  V Flag = unaffected 
+    			flags = flags << 1 ;		 //  V Flag = unaffected 
     
     			flags = flags<<28;
     			arm_write_cpsr(p,flags|clearflagscpsr);
@@ -369,14 +369,14 @@ int arm_data_processing_shift(arm_core p, uint32_t ins) {
     			if (alu_out == 0){       //  Z Flag = if alu_out == 0 then 1 else 0
     				flags += 1; 		
     			}
-    			flags << 1 ;
+    			flags = flags << 1 ;
     			
     
     			flags = !borrowFrom(rn,shifter_operand);		// C Flag = NOT BorrowFrom(Rn - shifter_operand)
-    			flags << 1 ;
+    			flags = flags << 1 ;
     
     			flags = overflowFrom(rn,shifter_operand,alu_out,0);		 //  V Flag = OverflowFrom(Rn - shifter_operand)
-    			flags << 1 ;
+    			flags = flags << 1 ;
     
     			flags = flags<<28;
     			arm_write_cpsr(p,flags|clearflagscpsr);
@@ -406,10 +406,10 @@ int arm_data_processing_shift(arm_core p, uint32_t ins) {
     			
     
     			flags = carryFrom(rn,shifter_operand);		// C Flag = CarryFrom(Rn + shifter_operand)
-    			flags << 1 ;
+    			flags = flags << 1 ;
     
     			flags = overflowFrom(rn,shifter_operand,alu_out,0);		 //  V Flag = OverflowFrom(Rn + shifter_operand)
-    			flags << 1 ;
+    			flags = flags << 1 ;
     
     			flags = flags<<28;
     			arm_write_cpsr(p,flags|clearflagscpsr);
