@@ -364,7 +364,7 @@ int arm_data_processing_shift(arm_core p, uint32_t ins) {
     			clearflagscpsr = arm_read_cpsr(p) & 0x0FFFFFFF;
                
     			flags = get_bit(alu_out,31);      // N Flag = alu_out[31]
-    			flags << 1 ;
+    			flags = flags << 1 ;
     
     			if (alu_out == 0){       //  Z Flag = if alu_out == 0 then 1 else 0
     				flags += 1; 		
@@ -402,7 +402,7 @@ int arm_data_processing_shift(arm_core p, uint32_t ins) {
     			if (alu_out == 0){       //  Z Flag = if alu_out == 0 then 1 else 0
     				flags += 1; 		
     			}
-    			flags << 1 ;
+    			flags = flags << 1 ;
     			
     
     			flags = carryFrom(rn,shifter_operand);		// C Flag = CarryFrom(Rn + shifter_operand)
@@ -552,6 +552,7 @@ int arm_data_processing_shift(arm_core p, uint32_t ins) {
               }
               return NO_ERROR;
     		break;
+       
     		default:
     		return UNDEFINED_INSTRUCTION;
    	}
