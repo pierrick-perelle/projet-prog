@@ -82,6 +82,9 @@ int arm_data_processing_shift(arm_core p, uint32_t ins) {
     uint32_t rnVal = arm_read_register(p,rn);
     uint16_t notcflag = !get_bit(arm_read_cpsr(p),29); 
     uint16_t cflag = get_bit(arm_read_cpsr(p),29);     
+    uint32_t alu_out;
+    uint32_t clearflagscpsr;
+    uint32_t flags;
 
     switch (opcode){
 
@@ -284,39 +287,274 @@ int arm_data_processing_shift(arm_core p, uint32_t ins) {
         break;
 
         case TST:
-        // Not Equal
-        break;
+    		/* 
+    			if ConditionPassed(cond) then
+    			alu_out = Rn AND shifter_operand
+    			N Flag = alu_out[31]
+    			Z Flag = if alu_out == 0 then 1 else 0
+    			C Flag = shifter_carry_out
+    			V Flag = unaffected 
+    			
+    		*/
+    
+          alu_out = arm_read_register(p,rn) & shifter_operand;  // alu_out = Rn AND shifter_operand
+    
+    			clearflagscpsr = arm_read_cpsr(p) & 0x3FFFFFFF;
+    
+    			flags = get_bit(alu_out,31) << 1;      // N Flag = alu_out[31]
+    
+    			if (alu_out == 0){       //  Z Flag = if alu_out == 0 then 1 else 0
+    				flags += 1; 		
+    			}
+			    flags << 1 ;
+			
 
-        case TEQ:
-        // Not Equal
-        break;
+    			flags << 1 ;		// C Flag = shifter_carry_out  Inchangé
+    
+    			flags << 1 ;		 //  V Flag = unaffected 
+    
+    			flags = flags<<28;
 
-        case CMP:
-        // Not Equal
-        break;
+			    arm_write_cpsr(p,flags|clearflagscpsr);
+			
+		    break;
 
-        case CMN:
-        // Not Equal
-        break;
-
-        case ORR:
-        // Not Equal
-        break;
-
-        case MOV:
-        // Not Equal
-        break;
-
-        case BIC:
-        // Not Equal
-        break;
-
-        case MVN:
-        // Not Equal
-        break;
-        default:
-        return UNDEFINED_INSTRUCTION;
-    }
+    		case TEQ:
+    		/* 
+    		if ConditionPassed(cond) then
+    		alu_out = Rn EOR shifter_operand
+    		N Flag = alu_out[31]
+    		Z Flag = if alu_out == 0 then 1 else 0
+    		C Flag = shifter_carry_out
+    		V Flag = unaffected
+    		*/
+    
+          alu_out = arm_read_register(p,rn) ^ shifter_operand;  // alu_out = Rn EOR shifter_operand
+    
+    			clearflagscpsr = arm_read_cpsr(p) & 0x3FFFFFFF;
+    
+    			flags = get_bit(alu_out,31) << 1;      // N Flag = alu_out[31]
+    
+    			if (alu_out == 0){       //  Z Flag = if alu_out == 0 then 1 else 0
+    				flags += 1; 		
+    			}
+    			flags << 1 ;
+    			
+    
+    			flags << 1 ;		// C Flag = shifter_carry_out Inchangé
+    
+    			flags << 1 ;		 //  V Flag = unaffected 
+    
+    			flags = flags<<28;
+    			arm_write_cpsr(p,flags|clearflagscpsr);
+    
+    		break;
+    
+    		case CMP:
+    		/*
+    		if ConditionPassed(cond) then
+    		alu_out = Rn - shifter_operand
+    		N Flag = alu_out[31]
+    		Z Flag = if alu_out == 0 then 1 else 0
+    		C Flag = NOT BorrowFrom(Rn - shifter_operand)
+    		V Flag = OverflowFrom(Rn - shifter_operand)
+    		*/
+    		  alu_out = arm_read_register(p,rn) - shifter_operand;  // alu_out = Rn - shifter_operand
+    
+    			clearflagscpsr = arm_read_cpsr(p) & 0x0FFFFFFF;
+               
+    			flags = get_bit(alu_out,31);      // N Flag = alu_out[31]
+    			flags << 1 ;
+    
+    			if (alu_out == 0){       //  Z Flag = if alu_out == 0 then 1 else 0
+    				flags += 1; 		
+    			}
+    			flags << 1 ;
+    			
+    
+    			flags = !borrowFrom(rn,shifter_operand);		// C Flag = NOT BorrowFrom(Rn - shifter_operand)
+    			flags << 1 ;
+    
+    			flags = overflowFrom(rn,shifter_operand,alu_out,0);		 //  V Flag = OverflowFrom(Rn - shifter_operand)
+    			flags << 1 ;
+    
+    			flags = flags<<28;
+    			arm_write_cpsr(p,flags|clearflagscpsr);
+    			
+    
+    		break;
+    
+    		case CMN:
+    		/*
+    		if ConditionPassed(cond) then
+    		alu_out = Rn + shifter_operand
+    		N Flag = alu_out[31]
+    		Z Flag = if alu_out == 0 then 1 else 0
+    		C Flag = CarryFrom(Rn + shifter_operand)
+    		V Flag = OverflowFrom(Rn + shifter_operand)
+    		*/
+    		  alu_out = arm_read_register(p,rn) + shifter_operand;  // alu_out = Rn + shifter_operand
+    
+    			clearflagscpsr = arm_read_cpsr(p) & 0x0FFFFFFF;
+    
+    			flags = get_bit(alu_out,31) << 1;      // N Flag = alu_out[31]
+    
+    			if (alu_out == 0){       //  Z Flag = if alu_out == 0 then 1 else 0
+    				flags += 1; 		
+    			}
+    			flags << 1 ;
+    			
+    
+    			flags = carryFrom(rn,shifter_operand);		// C Flag = CarryFrom(Rn + shifter_operand)
+    			flags << 1 ;
+    
+    			flags = overflowFrom(rn,shifter_operand,alu_out,0);		 //  V Flag = OverflowFrom(Rn + shifter_operand)
+    			flags << 1 ;
+    
+    			flags = flags<<28;
+    			arm_write_cpsr(p,flags|clearflagscpsr);
+    		break;
+    
+    		case ORR:
+    		/*
+    		if ConditionPassed(cond) then
+    		Rd = Rn OR shifter_operand
+    		if S == 1 and Rd == R15 then
+    			if CurrentModeHasSPSR() then
+    			CPSR = SPSR
+    			else UNPREDICTABLE
+    		else if S == 1 then
+    		N Flag = Rd[31]
+    		Z Flag = if Rd == 0 then 1 else 0
+    		C Flag = shifter_carry_out
+    		V Flag = unaffected
+    		*/
+    
+    		  arm_write_register(p,rd,arm_read_register(p,rn)|shifter_operand); 			//  PAS COMPRIS AU SECOURS !!!
+    
+          if (S==1 && rd==PC){
+                if (arm_current_mode_has_spsr(p)){
+                  arm_write_cpsr(p,arm_read_spsr(p));
+                }else{
+                  //UNPREDICTABLE
+                }
+          }else if (S==1){
+                uint32_t clearflagscpsr = arm_read_cpsr(p) & 0x3FFFFFFF;        //on passse N Z et C à 0, on garde V et C
+                uint32_t flags = get_bit(arm_read_register(p,rd),31) << 1;      //N flag = rd[31]
+                if(arm_read_register(p,rd)==0)                                  //Z flag = 1 si rd=0 et 0 sinon
+                  flags += 1;
+                
+                flags = flags<<30;                                              //C flag = on garde    +   on decale de 30 pour le | avec le cpsr
+                
+                arm_write_cpsr(p,flags|clearflagscpsr);
+              }
+              return NO_ERROR;
+    		break;
+    
+    		case MOV:
+    		/*
+    		if ConditionPassed(cond) then
+    		Rd = shifter_operand
+    		if S == 1 and Rd == R15 then
+    		if CurrentModeHasSPSR() then
+    		CPSR = SPSR
+    		else UNPREDICTABLE
+    		else if S == 1 then
+    		N Flag = Rd[31]
+    		Z Flag = if Rd == 0 then 1 else 0
+    		C Flag = shifter_carry_out
+    		V Flag = unaffected
+    		*/
+    		      arm_write_register(p,rd,arm_read_register(p,rn)|shifter_operand); //AND
+              if (S==1 && rd==PC){
+                if (arm_current_mode_has_spsr(p)){
+                  arm_write_cpsr(p,arm_read_spsr(p));
+                }else{
+                  //UNPREDICTABLE
+                }
+              }else if (S==1){
+                uint32_t clearflagscpsr = arm_read_cpsr(p) & 0x3FFFFFFF;        //on passse N Z et C à 0, on garde V et C
+                uint32_t flags = get_bit(arm_read_register(p,rd),31) << 1;      //N flag = rd[31]
+                if(arm_read_register(p,rd)==0)                                  //Z flag = 1 si rd=0 et 0 sinon
+                  flags += 1;
+                
+                flags = flags<<30;                                              //C flag = on garde    +   on decale de 30 pour le | avec le cpsr
+                
+                arm_write_cpsr(p,flags|clearflagscpsr);
+              }
+              return NO_ERROR;
+    		break;
+    
+    		case BIC:
+    		/*
+    		if ConditionPassed(cond) then
+    		Rd = Rn AND NOT shifter_operand
+    		if S == 1 and Rd == R15 then
+    		if CurrentModeHasSPSR() then
+    		CPSR = SPSR
+    		else UNPREDICTABLE
+    		else if S == 1 then
+    		N Flag = Rd[31]
+    		Z Flag = if Rd == 0 then 1 else 0
+    		C Flag = shifter_carry_out
+    		V Flag = unaffected
+    		*/
+    		      arm_write_register(p,rd,arm_read_register(p,rn)&!shifter_operand); //  AND NOT
+              if (S==1 && rd==PC){
+                if (arm_current_mode_has_spsr(p)){
+                  arm_write_cpsr(p,arm_read_spsr(p));
+                }else{
+                  //UNPREDICTABLE
+                }
+              }else if (S==1){
+                uint32_t clearflagscpsr = arm_read_cpsr(p) & 0x3FFFFFFF;        //on passse N Z et C à 0, on garde V et C
+                uint32_t flags = get_bit(arm_read_register(p,rd),31) << 1;      //N flag = rd[31]
+                if(arm_read_register(p,rd)==0)                                  //Z flag = 1 si rd=0 et 0 sinon
+                  flags += 1;
+                
+                flags = flags<<30;                                              //C flag = on garde    +   on decale de 30 pour le | avec le cpsr
+                
+                arm_write_cpsr(p,flags|clearflagscpsr);
+              }
+              return NO_ERROR;
+    		break;
+    
+    		case MVN:
+    		/*
+    		if ConditionPassed(cond) then
+    		Rd = NOT shifter_operand
+    		if S == 1 and Rd == R15 then
+    		if CurrentModeHasSPSR() then
+    		CPSR = SPSR
+    		else UNPREDICTABLE
+    		else if S == 1 then
+    		N Flag = Rd[31]
+    		Z Flag = if Rd == 0 then 1 else 0
+    		C Flag = shifter_carry_out
+    		V Flag = unaffected
+    		*/
+    		      arm_write_register(p,rd,!shifter_operand); //   NOT
+              if (S==1 && rd==PC){
+                if (arm_current_mode_has_spsr(p)){
+                  arm_write_cpsr(p,arm_read_spsr(p));
+                }else{
+                  //UNPREDICTABLE
+                }
+              }else if (S==1){
+                uint32_t clearflagscpsr = arm_read_cpsr(p) & 0x3FFFFFFF;        //on passse N Z et C à 0, on garde V et C
+                uint32_t flags = get_bit(arm_read_register(p,rd),31) << 1;      //N flag = rd[31]
+                if(arm_read_register(p,rd)==0)                                  //Z flag = 1 si rd=0 et 0 sinon
+                  flags += 1;
+                
+                flags = flags<<30;                                              //C flag = on garde    +   on decale de 30 pour le | avec le cpsr
+                
+                arm_write_cpsr(p,flags|clearflagscpsr);
+              }
+              return NO_ERROR;
+    		break;
+    		default:
+    		return UNDEFINED_INSTRUCTION;
+   	}
 
 }
 

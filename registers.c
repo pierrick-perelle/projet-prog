@@ -256,16 +256,22 @@ void write_register(registers r, uint8_t reg, uint32_t value) {
         switch (get_mode(r)){
         case SVC:
             write_svc_register(r,reg,value);
+            break;
         case ABT:
             write_abt_register(r,reg,value);
+            break;
         case UND:
             write_und_register(r,reg,value);
+            break;
         case IRQ:
             write_irq_register(r,reg,value);
+            break;
         case FIQ:
             write_fiq_register(r,reg,value);
+            break;
         default:
             write_usr_register(r,reg,value);
+            break;
         }
     }
 }
@@ -274,38 +280,55 @@ void write_usr_register(registers r, uint8_t reg, uint32_t value) {
     switch (reg){
         case R0:
             r->reg[INTERNE_R0] = value;
+            break;
         case R1:
             r->reg[INTERNE_R1] = value;
+            break;
         case R2:
             r->reg[INTERNE_R2] = value;
+            break;
         case R3:
             r->reg[INTERNE_R3] = value;
+            break;
         case R4:
             r->reg[INTERNE_R4] = value;
+            break;
         case R5:
             r->reg[INTERNE_R5] = value;
+            break;
         case R6:
             r->reg[INTERNE_R6] = value;
+            break;
         case R7:
             r->reg[INTERNE_R7] = value;
+            break;
         case R8:
             r->reg[INTERNE_R8] = value;
+            break;
         case R9:
             r->reg[INTERNE_R9] = value;
+            break;
         case R10:
             r->reg[INTERNE_R10] = value;
+            break;
         case R11:
             r->reg[INTERNE_R11] = value;
+            break;
         case R12:
             r->reg[INTERNE_R12] = value;
+            break;
         case R13:
             r->reg[INTERNE_R13] = value;
+            break;
         case R14:
             r->reg[INTERNE_R14] = value;
+            break;
         case PC:
             r->reg[INTERNE_PC] = value;
+            break;
         case CPSR:
             r->reg[INTERNE_CPSR] = value;
+            break;
         case SPSR:
             EXIT_FAILURE;
         default:
@@ -317,10 +340,13 @@ void write_svc_register(registers r, uint8_t reg,uint32_t value) {
     switch (reg){
         case R13:
             r->reg[INTERNE_R13_SVC] = value;
+            break;
         case R14:
             r->reg[INTERNE_R14_SVC] = value;
+            break;
         case SPSR:
             r->reg[INTERNE_SPSR_SVC] = value;
+            break;
         default:
             EXIT_FAILURE;
     }
@@ -330,10 +356,13 @@ void write_abt_register(registers r, uint8_t reg,uint32_t value) {
     switch (reg){
         case R13:
             r->reg[INTERNE_R13_ABT] = value;
+            break;
         case R14:
             r->reg[INTERNE_R14_ABT] = value;
+            break;
         case SPSR:
             r->reg[INTERNE_SPSR_ABT] = value;
+            break;
         default:
             EXIT_FAILURE;
     }
@@ -343,10 +372,13 @@ void write_und_register(registers r, uint8_t reg,uint32_t value) {
     switch (reg){
         case R13:
             r->reg[INTERNE_R13_UND] = value;
+            break;
         case R14:
             r->reg[INTERNE_R14_UND] = value;
+            break;
         case SPSR:
             r->reg[INTERNE_SPSR_UND] = value;
+            break;
         default:
             EXIT_FAILURE;
     }
@@ -357,10 +389,13 @@ void write_irq_register(registers r, uint8_t reg,uint32_t value) {
     switch (reg){
         case R13:
             r->reg[INTERNE_R13_IRQ] = value;
+            break;
         case R14:
             r->reg[INTERNE_R14_IRQ] = value;
+            break;
         case SPSR:
             r->reg[INTERNE_SPSR_IRQ] = value;
+            break;
         default:
             EXIT_FAILURE;
     }
@@ -370,20 +405,28 @@ void write_fiq_register(registers r, uint8_t reg,uint32_t value) {
     switch (reg){
         case R8:
             r->reg[INTERNE_R8_FIQ] = value;
+            break;
         case R9:
             r->reg[INTERNE_R9_FIQ] = value;
+            break;
         case R10:
             r->reg[INTERNE_R10_FIQ] = value;
+            break;
         case R11:
             r->reg[INTERNE_R11_FIQ] = value;
+            break;
         case R12:
             r->reg[INTERNE_R12_FIQ] = value;
+            break;
         case R13:
             r->reg[INTERNE_R13_FIQ] = value;
+            break;
         case R14:
             r->reg[INTERNE_R14_FIQ] = value;
+            break;
         case SPSR:
             r->reg[INTERNE_SPSR_FIQ] = value;
+            break;
         default:
             EXIT_FAILURE;
     }
